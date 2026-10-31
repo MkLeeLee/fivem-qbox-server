@@ -9,7 +9,7 @@ buyable houses (qbx_properties) · vMenu (locked down for admins) · custom cars
 
 ```bash
 sudo apt update && sudo apt install -y git
-git clone https://github.com/YOUR_GITHUB_NAME/fivem-qbox-server.git
+git clone https://github.com/MkLeeLee/fivem-qbox-server.git
 cd fivem-qbox-server
 sudo bash install.sh
 ```

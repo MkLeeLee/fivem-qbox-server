@@ -39,12 +39,11 @@ ssh root@YOUR_SERVER_IP
 
 ## Step 2: Run the installer
 
-On the server, download these scripts from GitHub and run the installer
-(replace `YOUR_GITHUB_NAME` with your GitHub username):
+On the server, download these scripts from GitHub and run the installer:
 
 ```bash
 sudo apt update && sudo apt install -y git
-git clone https://github.com/YOUR_GITHUB_NAME/fivem-qbox-server.git
+git clone https://github.com/MkLeeLee/fivem-qbox-server.git
 cd fivem-qbox-server
 sudo bash install.sh
 ```
