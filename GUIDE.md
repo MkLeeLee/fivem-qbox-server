@@ -85,6 +85,15 @@ Friends who take the police or EMS job still work normally, with their job cars.
 To bring NPCs back, put a `#` in front of `ensure no_npc_services` in server.cfg and restart.
 To change which models are blocked, edit `resources/[custom]/no_npc_services/config.lua`.
 
+It also installs **`glow_hud`**, the glowing HUD, and moves Qbox's `qbx_hud` to `disabled-resources/`:
+
+- **Always:** location at the top, armor and health bars under the map, hunger, thirst, stress and stamina, and a voice meter
+- **In cars:** speed, RPM (inner ring), fuel (outer ring), and FUEL, ENG, SEAT and LIGHT indicators
+- **In planes and helicopters:** speed and altitude tapes, artificial horizon, height above ground, and gear and engine indicators
+
+Settings such as MPH or KM/H are in `resources/[custom]/glow_hud/config.lua`. The HUD also takes over
+stress and the `/cash` and `/bank` commands from `qbx_hud`. `qbx_hud`'s settings menu is gone.
+
 ## Step 5: Make yourself admin and keep it friends-only
 
 1. Join the server once (Step 6), then in txAdmin go to **Players** → click your name → copy your `fivem:` or `license:` identifier.

@@ -3,7 +3,7 @@
 Scripts and guides for a private Qbox roleplay server on Linux, for me and my friends.
 
 **Includes:** Qbox framework · txAdmin · ox_inventory · cash/bank money with Renewed-Banking · jobs and paychecks ·
-buyable houses (qbx_properties) · vMenu (locked down for admins) · custom cars and guns · no NPC police/EMS/fire
+buyable houses (qbx_properties) · vMenu (locked down for admins) · custom cars and guns · no NPC police/EMS/fire · glowing HUD with speedometer and flight instruments
 
 ## Quick start (on a fresh Ubuntu 24.04 server)
 
@@ -22,7 +22,8 @@ Then follow **[GUIDE.md](GUIDE.md)** from Step 3 (txAdmin setup).
 |---|---|
 | [GUIDE.md](GUIDE.md) | Full step-by-step setup, economy, houses, cars, guns, troubleshooting |
 | [install.sh](install.sh) | Installs MariaDB, the FiveM server and txAdmin (runs as a service) |
-| [post-install.sh](post-install.sh) | Run after the txAdmin Qbox recipe: adds vMenu, custom car/gun folders, no-NPC-services |
+| [post-install.sh](post-install.sh) | Run after the txAdmin Qbox recipe: adds vMenu, custom car/gun folders, no-NPC-services, glow_hud |
+| [resources/glow_hud](resources/glow_hud) | The HUD. Open `html/preview.html` through a local web server to see it without the game |
 | [add-mod.sh](add-mod.sh) | Downloads a mod straight onto the server and turns it into a FiveM resource |
 | [MODS.md](MODS.md) | Status and install steps for each mod we're using |
 

@@ -6,6 +6,7 @@
 #    - vMenu (locked down so it can't break the economy)
 #    - empty "custom_vehicles" and "custom_weapons" resources for your add-ons
 #    - "no_npc_services": no NPC police, EMS or fire
+#    - "glow_hud": the glowing HUD, which replaces qbx_hud
 #    - private-server settings in server.cfg
 #
 #  Run ON THE LINUX SERVER as root:   sudo bash post-install.sh
@@ -214,6 +215,23 @@ CreateThread(function()
 end)
 EOF
 
+# ----------------------------- glow_hud (replaces qbx_hud) -------------------
+log "Installing glow_hud"
+HUD_SOURCE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/resources/glow_hud"
+[[ -f "$HUD_SOURCE/fxmanifest.lua" ]] || die "Missing $HUD_SOURCE. Run this from the folder you cloned from GitHub."
+rm -rf "$CUSTOM_DIR/glow_hud"
+cp -r "$HUD_SOURCE" "$CUSTOM_DIR/glow_hud"
+rm -f "$CUSTOM_DIR/glow_hud/html/preview.html"
+
+# Two HUDs would fight over the screen, so qbx_hud moves out of resources/ where FiveM can't load it
+while IFS= read -r -d '' OLD_HUD; do
+  mkdir -p "$SERVER_DIR/disabled-resources"
+  rm -rf "$SERVER_DIR/disabled-resources/qbx_hud"
+  mv "$OLD_HUD" "$SERVER_DIR/disabled-resources/qbx_hud"
+  echo "Moved qbx_hud to disabled-resources/"
+done < <(find "$SERVER_DIR/resources" -type d -name qbx_hud -print0)
+sed -i -E 's/^[[:space:]]*(ensure|start)[[:space:]]+qbx_hud[[:space:]]*$/# &/' "$SERVER_DIR/server.cfg"
+
 # ----------------------------- server.cfg ------------------------------------
 log "Updating server.cfg"
 CFG="$SERVER_DIR/server.cfg"
@@ -239,6 +257,9 @@ ensure custom_weapons
 
 ## No NPC police, EMS or fire (players with those jobs still work)
 ensure no_npc_services
+
+## Glowing HUD (replaces qbx_hud)
+ensure glow_hud
 # <<< friends-setup
 EOF
 
