@@ -1,10 +1,9 @@
 /* Every size is based on --u, one pixel at 1080p, so the HUD scales with the screen */
 :root {
   --u: calc(100vh / 1080);
-  --green: #7dea22;
-  --green-soft: #a8e878;
+  --accent: #ff8a1f;
+  --accent-soft: #ffb877;
   --blue: #0ea5ff;
-  --orange: #f08a1d;
   --red: #ff3b30;
   --yellow: #f5d90a;
   --cyan: #22d3ee;
@@ -58,8 +57,8 @@ svg { display: block; }
   height: calc(var(--u) * 8);
   margin-top: calc(var(--u) * -4);
   border-radius: 50%;
-  background: var(--green);
-  box-shadow: 0 0 calc(var(--u) * 8) var(--green);
+  background: var(--accent);
+  box-shadow: 0 0 calc(var(--u) * 8) var(--accent);
 }
 .pill:empty { display: none; }
 
@@ -85,7 +84,7 @@ svg { display: block; }
 .stat-icon { width: calc(var(--u) * 16); fill: #cfd3cd; }
 .stat b { font-size: calc(var(--u) * 19); font-weight: 600; text-align: center; }
 .armor b { color: var(--blue); text-shadow: 0 0 calc(var(--u) * 8) var(--blue); }
-.health b { color: var(--green); text-shadow: 0 0 calc(var(--u) * 8) var(--green); }
+.health b { color: var(--accent); text-shadow: 0 0 calc(var(--u) * 8) var(--accent); }
 .health.low b { color: var(--red); text-shadow: 0 0 calc(var(--u) * 8) var(--red); }
 
 .bar, .segments i {
@@ -103,8 +102,8 @@ svg { display: block; }
 }
 .bar i {
   width: 100%;
-  background: var(--green);
-  box-shadow: 0 0 calc(var(--u) * 10) var(--green);
+  background: var(--accent);
+  box-shadow: 0 0 calc(var(--u) * 10) var(--accent);
 }
 .health.low .bar i { background: var(--red); box-shadow: 0 0 calc(var(--u) * 10) var(--red); }
 .bar, .segments i { overflow: visible; }
@@ -152,7 +151,7 @@ svg { display: block; }
 .hunger { --color: var(--yellow); }
 .thirst { --color: var(--cyan); }
 .stress { --color: var(--purple); }
-.stamina { --color: var(--orange); }
+.stamina { --color: var(--accent); }
 .need.alert svg { stroke: var(--red); }
 
 /* ------------------------------ right side cluster */
@@ -176,10 +175,10 @@ svg { display: block; }
 .arc { fill: none; stroke-linecap: round; }
 .arc.track { stroke: rgba(255, 255, 255, .1); stroke-width: 3; }
 #rpm-track { stroke-width: 7; }
-.arc.fuel { stroke: var(--green); stroke-width: 5; filter: drop-shadow(0 0 5px var(--green)); }
-.arc.fuel.low { stroke: var(--orange); filter: drop-shadow(0 0 5px var(--orange)); }
-.arc.rpm { stroke: var(--green-soft); stroke-width: 8; filter: drop-shadow(0 0 7px var(--green)); }
-.arc.rpm.red { stroke: #ff6a3d; filter: drop-shadow(0 0 7px var(--red)); }
+.arc.fuel { stroke: var(--accent); stroke-width: 5; filter: drop-shadow(0 0 5px var(--accent)); }
+.arc.fuel.low { stroke: var(--yellow); filter: drop-shadow(0 0 5px var(--yellow)); }
+.arc.rpm { stroke: var(--accent-soft); stroke-width: 8; filter: drop-shadow(0 0 7px var(--accent)); }
+.arc.rpm.red { stroke: var(--red); filter: drop-shadow(0 0 7px var(--red)); }
 .tick { stroke: var(--white); stroke-width: 4; stroke-linecap: round; }
 .tick-label { fill: #d5d8d3; font-size: 20px; text-anchor: middle; dominant-baseline: central; }
 
@@ -192,8 +191,8 @@ svg { display: block; }
   stroke-width: 1.800;
   stroke-linejoin: round;
 }
-.end-icon.on { stroke: var(--green); filter: drop-shadow(0 0 calc(var(--u) * 5) var(--green)); }
-#flame.on { stroke: var(--orange); filter: drop-shadow(0 0 calc(var(--u) * 5) var(--orange)); }
+.end-icon.on { stroke: var(--accent); filter: drop-shadow(0 0 calc(var(--u) * 5) var(--accent)); }
+#flame.on { stroke: var(--red); filter: drop-shadow(0 0 calc(var(--u) * 5) var(--red)); }
 #bolt { left: 12%; }
 #flame { right: 12%; }
 
@@ -227,8 +226,8 @@ svg { display: block; }
   color: #8f948d;
   border-bottom: calc(var(--u) * 3) solid transparent;
 }
-.indicator.ok { color: #dfe3dc; border-color: var(--green); box-shadow: 0 calc(var(--u) * 5) calc(var(--u) * 7) -5px var(--green); }
-.indicator.warn { color: #dfe3dc; border-color: var(--orange); box-shadow: 0 calc(var(--u) * 5) calc(var(--u) * 7) -5px var(--orange); }
+.indicator.ok { color: #dfe3dc; border-color: var(--accent); box-shadow: 0 calc(var(--u) * 5) calc(var(--u) * 7) -5px var(--accent); }
+.indicator.warn { color: #dfe3dc; border-color: var(--yellow); box-shadow: 0 calc(var(--u) * 5) calc(var(--u) * 7) -5px var(--yellow); }
 .indicator.bad { color: var(--white); border-color: var(--red); animation: blink .7s infinite alternate; }
 @keyframes blink { to { opacity: .35; } }
 
@@ -275,11 +274,11 @@ svg { display: block; }
   padding: calc(var(--u) * 3) 0;
   border-radius: calc(var(--u) * 4);
   background: #161a16;
-  color: var(--green);
+  color: var(--accent);
   text-align: center;
   font-size: calc(var(--u) * 26);
   font-weight: 600;
-  text-shadow: 0 0 calc(var(--u) * 8) var(--green);
+  text-shadow: 0 0 calc(var(--u) * 8) var(--accent);
   box-shadow: 0 0 0 calc(var(--u) * 1) #ffffff24;
 }
 
@@ -291,14 +290,14 @@ svg { display: block; }
 .ladder-line { stroke: #f2f4f1; stroke-width: 2; }
 .ladder-label { fill: #f2f4f1; font-size: 15px; text-anchor: middle; dominant-baseline: central; font-family: var(--font); }
 .bank-tick { stroke: #f2f4f1; stroke-width: 4; stroke-linecap: round; }
-.adi-pointer { fill: var(--green); filter: drop-shadow(0 0 4px var(--green)); }
+.adi-pointer { fill: var(--accent); filter: drop-shadow(0 0 4px var(--accent)); }
 .adi-plane {
   fill: none;
-  stroke: var(--green);
+  stroke: var(--accent);
   stroke-width: 6;
   stroke-linecap: round;
   stroke-linejoin: round;
-  filter: drop-shadow(0 0 5px var(--green));
+  filter: drop-shadow(0 0 5px var(--accent));
 }
 
 #agl { align-self: center; text-align: center; }
@@ -308,10 +307,10 @@ svg { display: block; }
   padding: calc(var(--u) * 4) calc(var(--u) * 8);
   border-radius: calc(var(--u) * 5);
   background: var(--panel);
-  color: var(--green);
+  color: var(--accent);
   font-size: calc(var(--u) * 26);
   font-weight: 600;
-  text-shadow: 0 0 calc(var(--u) * 8) var(--green);
+  text-shadow: 0 0 calc(var(--u) * 8) var(--accent);
 }
 
 /* ------------------------------ voice */
@@ -324,8 +323,8 @@ svg { display: block; }
   background: #6b706a;
 }
 #voice.talking #wave i {
-  background: var(--green);
-  box-shadow: 0 0 calc(var(--u) * 6) var(--green);
+  background: var(--accent);
+  box-shadow: 0 0 calc(var(--u) * 6) var(--accent);
   animation: talk .5s infinite alternate ease-in-out;
 }
 @keyframes talk { from { height: 15%; } to { height: var(--peak, 90%); } }
@@ -336,4 +335,4 @@ svg { display: block; }
   border-radius: calc(var(--u) * 2);
   background: var(--dim);
 }
-#voice-range i.on { background: var(--green); box-shadow: 0 0 calc(var(--u) * 5) var(--green); }
+#voice-range i.on { background: var(--accent); box-shadow: 0 0 calc(var(--u) * 5) var(--accent); }

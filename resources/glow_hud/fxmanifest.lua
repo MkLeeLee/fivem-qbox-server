@@ -1,4 +1,4 @@
--- Glowing green HUD for Qbox: status bars, speedometer, flight instruments, location.
+-- Glowing orange HUD for Qbox: status bars, speedometer, flight instruments, location.
 -- Replaces qbx_hud, including its stress system and /cash and /bank commands.
 fx_version 'cerulean'
 game 'gta5'
