@@ -94,6 +94,10 @@ It also installs **`glow_hud`**, the glowing HUD, and moves Qbox's `qbx_hud` to 
 Settings such as MPH or KM/H are in `resources/[custom]/glow_hud/config.lua`. The HUD also takes over
 stress and the `/cash` and `/bank` commands from `qbx_hud`. `qbx_hud`'s settings menu is gone.
 
+It also installs **`glow_loading`**, a loading screen with scrolling mod credits, and moves the recipe's
+`loadscreen` to `disabled-resources/`. To change the server name or the credits, edit
+`resources/glow_loading/html/credits.js` in this repo and run `post-install.sh` again. Remove any mod you didn't install.
+
 ## Step 5: Make yourself admin and keep it friends-only
 
 1. Join the server once (Step 6), then in txAdmin go to **Players** → click your name → copy your `fivem:` or `license:` identifier.

@@ -7,6 +7,7 @@
 #    - empty "custom_vehicles" and "custom_weapons" resources for your add-ons
 #    - "no_npc_services": no NPC police, EMS or fire
 #    - "glow_hud": the glowing HUD, which replaces qbx_hud
+#    - "glow_loading": loading screen with mod credits, which replaces loadscreen
 #    - private-server settings in server.cfg
 #
 #  Run ON THE LINUX SERVER as root:   sudo bash post-install.sh
@@ -215,22 +216,35 @@ CreateThread(function()
 end)
 EOF
 
-# ----------------------------- glow_hud (replaces qbx_hud) -------------------
-log "Installing glow_hud"
-HUD_SOURCE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/resources/glow_hud"
-[[ -f "$HUD_SOURCE/fxmanifest.lua" ]] || die "Missing $HUD_SOURCE. Run this from the folder you cloned from GitHub."
-rm -rf "$CUSTOM_DIR/glow_hud"
-cp -r "$HUD_SOURCE" "$CUSTOM_DIR/glow_hud"
-rm -f "$CUSTOM_DIR/glow_hud/html/preview.html"
+# ----------------------------- glow_hud and glow_loading ---------------------
+REPO_RESOURCES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/resources"
 
-# Two HUDs would fight over the screen, so qbx_hud moves out of resources/ where FiveM can't load it
-while IFS= read -r -d '' OLD_HUD; do
-  mkdir -p "$SERVER_DIR/disabled-resources"
-  rm -rf "$SERVER_DIR/disabled-resources/qbx_hud"
-  mv "$OLD_HUD" "$SERVER_DIR/disabled-resources/qbx_hud"
-  echo "Moved qbx_hud to disabled-resources/"
-done < <(find "$SERVER_DIR/resources" -type d -name qbx_hud -print0)
-sed -i -E 's/^[[:space:]]*(ensure|start)[[:space:]]+qbx_hud[[:space:]]*$/# &/' "$SERVER_DIR/server.cfg"
+install_from_repo() {
+  log "Installing $1"
+  [[ -f "$REPO_RESOURCES/$1/fxmanifest.lua" ]] || die "Missing $REPO_RESOURCES/$1. Run this from the folder you cloned from GitHub."
+  rm -rf "${CUSTOM_DIR:?}/$1"
+  cp -r "$REPO_RESOURCES/$1" "$CUSTOM_DIR/$1"
+}
+
+# Moves a resource out of resources/, where FiveM can't load it, and comments out its server.cfg lines
+disable_resource() {
+  local manifest
+  while IFS= read -r -d '' manifest; do
+    mkdir -p "$SERVER_DIR/disabled-resources"
+    rm -rf "${SERVER_DIR:?}/disabled-resources/$1"
+    mv "$(dirname "$manifest")" "$SERVER_DIR/disabled-resources/$1"
+    echo "Moved $1 to disabled-resources/"
+  done < <(find "$SERVER_DIR/resources" -type f -path "*/$1/fxmanifest.lua" -print0)
+  sed -i -E "s/^[[:space:]]*(ensure|start)[[:space:]]+$1[[:space:]]*\$/# &/" "$SERVER_DIR/server.cfg"
+}
+
+install_from_repo glow_hud
+rm -f "$CUSTOM_DIR/glow_hud/html/preview.html"
+disable_resource qbx_hud
+
+install_from_repo glow_loading
+disable_resource loadscreen
+sed -i -E 's/^[[:space:]]*exec[[:space:]].*loadscreen\.cfg.*$/# &/' "$SERVER_DIR/server.cfg"
 
 # ----------------------------- server.cfg ------------------------------------
 log "Updating server.cfg"
@@ -260,6 +274,9 @@ ensure no_npc_services
 
 ## Glowing HUD (replaces qbx_hud)
 ensure glow_hud
+
+## Loading screen with mod credits (replaces loadscreen)
+ensure glow_loading
 # <<< friends-setup
 EOF
 

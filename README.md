@@ -22,7 +22,8 @@ Then follow **[GUIDE.md](GUIDE.md)** from Step 3 (txAdmin setup).
 |---|---|
 | [GUIDE.md](GUIDE.md) | Full step-by-step setup, economy, houses, cars, guns, troubleshooting |
 | [install.sh](install.sh) | Installs MariaDB, the FiveM server and txAdmin (runs as a service) |
-| [post-install.sh](post-install.sh) | Run after the txAdmin Qbox recipe: adds vMenu, custom car/gun folders, no-NPC-services, glow_hud |
+| [post-install.sh](post-install.sh) | Run after the txAdmin Qbox recipe: adds vMenu, custom car/gun folders, no-NPC-services, glow_hud, glow_loading |
+| [resources/glow_loading](resources/glow_loading) | The loading screen. Edit `html/credits.js` to change the server name and mod credits |
 | [resources/glow_hud](resources/glow_hud) | The HUD. Open `html/preview.html` through a local web server to see it without the game |
 | [add-mod.sh](add-mod.sh) | Downloads a mod straight onto the server and turns it into a FiveM resource |
 | [MODS.md](MODS.md) | Status and install steps for each mod we're using |
