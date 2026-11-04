@@ -3,7 +3,8 @@
 #  Run AFTER the txAdmin "QBox Framework" recipe has finished deploying.
 #
 #  Adds:
-#    - vMenu (locked down so it can't break the economy)
+#    - vMenu Enhanced (locked down so it can't break the economy; modded cars and
+#      guns show up in its admin menus)
 #    - empty "custom_vehicles" and "custom_weapons" resources for your add-ons
 #    - "no_npc_services": no NPC police, EMS or fire
 #    - "glow_hud": the glowing HUD, which replaces qbx_hud
@@ -12,7 +13,7 @@
 #
 #  Run ON THE LINUX SERVER as root:   sudo bash post-install.sh
 #  If it can't find your server folder:  sudo bash post-install.sh /path/to/server/folder
-#  Safe to run again (re-downloads vMenu, rewrites only its own server.cfg block).
+#  Safe to run again (re-downloads vMenu, rewrites only its own server.cfg blocks).
 # =============================================================================
 set -euo pipefail
 
@@ -42,48 +43,86 @@ mkdir -p "$CUSTOM_DIR"
 echo "Server folder: $SERVER_DIR"
 
 # ----------------------------- vMenu -----------------------------------------
-log "Downloading latest vMenu release"
+# vMenu is now "vMenu Enhanced". A regular FiveM server needs the zip with
+# "Legacy" in its name, and the folder MUST be called vMenu.Enhanced.
+log "Downloading latest vMenu Enhanced (Legacy build, for regular FiveM)"
 VMENU_URL="$(curl -fsSL https://api.github.com/repos/TomGrobbe/vMenu/releases/latest \
-  | jq -r '.assets[] | select(.name | endswith(".zip")) | .browser_download_url' | head -n1)"
-[[ "$VMENU_URL" == https://* ]] || die "Could not find the vMenu download (GitHub may be rate-limiting, try again later)."
+  | jq -r '[.assets[] | select((.name | endswith(".zip")) and (.name | test("Legacy"))) | .browser_download_url][0] // empty')"
+[[ "$VMENU_URL" == https://* ]] || die "Could not find the vMenu Legacy download (GitHub may be rate-limiting, try again later)."
 echo "$VMENU_URL"
 
 TMP="$(mktemp -d)"
 curl -fL "$VMENU_URL" -o "$TMP/vmenu.zip"
 unzip -q "$TMP/vmenu.zip" -d "$TMP/x"
-MANIFEST="$(find "$TMP/x" \( -name fxmanifest.lua -o -name __resource.lua \) | head -n1)"
+MANIFEST="$(find "$TMP/x" -maxdepth 2 -name fxmanifest.lua | head -n1)"
 [[ -n "$MANIFEST" ]] || die "vMenu zip layout not recognised."
-rm -rf "$CUSTOM_DIR/vMenu"
-cp -r "$(dirname "$MANIFEST")" "$CUSTOM_DIR/vMenu"
-rm -rf "$TMP"
+VMENU_DIR="$CUSTOM_DIR/vMenu.Enhanced"
+VMENU_CFG="$VMENU_DIR/config"
 
-# Only written the first time, so your admin edits survive re-runs
-if [[ ! -f "$SERVER_DIR/vmenu_permissions.cfg" ]]; then
-log "Writing vmenu_permissions.cfg"
-cat > "$SERVER_DIR/vmenu_permissions.cfg" <<'EOF'
+# Keep your own edited config files across updates
+KEEP="$(mktemp -d)"
+if [[ -d "$VMENU_CFG" ]]; then
+  cp -a "$VMENU_CFG/." "$KEEP/"
+fi
+rm -rf "$VMENU_DIR"
+cp -r "$(dirname "$MANIFEST")" "$VMENU_DIR"
+for f in permissions.cfg configuration.cfg weapons.json; do
+  if [[ -f "$KEEP/$f" ]]; then cp -a "$KEEP/$f" "$VMENU_CFG/$f"; fi
+done
+rm -rf "$TMP" "$KEEP"
+
+# The old vMenu (v3.x) can't run next to this one. Move it out of the way.
+OLD_VMENU="$(find "$SERVER_DIR/resources" -type f -path '*/vMenu/fxmanifest.lua' -print -quit || true)"
+if [[ -n "$OLD_VMENU" ]]; then
+  log "Moving the old vMenu to disabled-resources/"
+  mkdir -p "$SERVER_DIR/disabled-resources"
+  rm -rf "$SERVER_DIR/disabled-resources/vMenu"
+  mv "$(dirname "$OLD_VMENU")" "$SERVER_DIR/disabled-resources/vMenu"
+fi
+
+# Permissions. Only written the first time, so your admin edits survive re-runs
+if [[ ! -f "$VMENU_CFG/permissions.cfg" ]]; then
+log "Writing vMenu permissions.cfg"
+cat > "$VMENU_CFG/permissions.cfg" <<'EOF'
 ## =====================================================================
-##  vMenu permissions for a Qbox roleplay server
-##  Admins get everything. Everyone else only gets harmless settings, so
-##  vMenu can't be used to skip the economy (free cars, guns, repairs).
+##  vMenu Enhanced permissions for a Qbox roleplay server
+##  Admins get everything, INCLUDING the modded cars and guns (they show up
+##  in Vehicle Spawner and Weapon Options on their own).
+##  Everyone else only gets harmless settings, so vMenu can't be used to
+##  skip the economy (free cars, guns, repairs).
 ## =====================================================================
+
+## Lets vMenu add/remove permission groups itself (needed by some plugins)
+add_ace resource.vMenu.Enhanced command.add_principal allow
+add_ace resource.vMenu.Enhanced command.remove_principal allow
 
 ## ---- Admins ---------------------------------------------------------
-add_ace group.admin vMenu.Everything allow
+add_ace group.admin "vMenu.Enhanced.Everything" allow
 
 ## Make yourself (and trusted friends) admin. Find identifiers in
 ## txAdmin > Players > click a player > IDs. Remove the "#" to enable.
+## (Steam identifiers don't work any more, use fivem: or license:)
 # add_principal identifier.fivem:1234567 group.admin
 # add_principal identifier.license:abcdef1234567890 group.admin
 
 ## ---- Everyone -------------------------------------------------------
-add_ace builtin.everyone vMenu.MiscSettings.All allow
+add_ace builtin.everyone "vMenu.Enhanced.Menus.MiscSettings.All" allow
 
 ## ---- Optional "fun mode" for everyone (remove "#" to enable) --------
 ## Warning: these let players skip mechanics, the customs shop, and dying.
-# add_ace builtin.everyone vMenu.VehicleOptions.All allow
-# add_ace builtin.everyone vMenu.PlayerOptions.All allow
-# add_ace builtin.everyone vMenu.NoClip allow
+## VehicleSpawner would also let everyone spawn the modded cars for free.
+# add_ace builtin.everyone "vMenu.Enhanced.Menus.VehicleOptions.All" allow
+# add_ace builtin.everyone "vMenu.Enhanced.Menus.PlayerOptions.All" allow
+# add_ace builtin.everyone "vMenu.Enhanced.Menus.VehicleSpawner.All" allow
 EOF
+fi
+
+# Settings. Copied from vMenu's own example the first time, with two changes
+if [[ ! -f "$VMENU_CFG/configuration.cfg" ]]; then
+log "Writing vMenu configuration.cfg"
+cp "$VMENU_CFG/configuration.cfg.example" "$VMENU_CFG/configuration.cfg"
+# Renewed-Weathersync controls weather and time, so vMenu must not
+sed -i -E 's/^(setr vMenu\.Enhanced\.WeatherOptions\.Enabled) .*/\1 false/; s/^(setr vMenu\.Enhanced\.TimeOptions\.Enabled) .*/\1 false/' "$VMENU_CFG/configuration.cfg"
 fi
 
 # ----------------------------- custom vehicles template ----------------------
@@ -250,20 +289,13 @@ sed -i -E 's/^[[:space:]]*exec[[:space:]].*loadscreen\.cfg.*$/# &/' "$SERVER_DIR
 log "Updating server.cfg"
 CFG="$SERVER_DIR/server.cfg"
 cp "$CFG" "$CFG.bak.$(date +%Y%m%d-%H%M%S)"
+# Remove our managed blocks (this also clears the old v3 vMenu lines from earlier versions of this script)
 sed -i '/^# >>> friends-setup/,/^# <<< friends-setup/d' "$CFG"
+sed -i '/^# >>> vmenu-last/,/^# <<< vmenu-last/d' "$CFG"
 cat >> "$CFG" <<'EOF'
 # >>> friends-setup (managed by post-install.sh - edits inside this block are overwritten)
 ## Hide the server from the public FiveM server list (friends connect by IP)
 sv_master1 ""
-
-## vMenu - press M to open
-setr vmenu_use_permissions true
-setr vmenu_menu_staff_only false
-setr vmenu_menu_toggle_key 244
-setr vmenu_enable_weather_sync false
-setr vmenu_enable_time_sync false
-exec vmenu_permissions.cfg
-ensure vMenu
 
 ## Custom cars and guns
 ensure custom_vehicles
@@ -280,6 +312,38 @@ ensure glow_loading
 # <<< friends-setup
 EOF
 
+# Mods installed by an older version of this script were added at the bottom, below vMenu.
+# Move them above where vMenu is about to go.
+python3 - "$CFG" <<'MIGRATE'
+import os, sys
+p = sys.argv[1]
+mods_dir = os.path.join(os.path.dirname(p), 'resources', '[mods]')
+mods = set(os.listdir(mods_dir)) if os.path.isdir(mods_dir) else set()
+lines = open(p).read().split('\n')
+move = [l for l in lines if l.strip().startswith('ensure ') and l.strip()[7:].strip() in mods]
+if move:
+    keep = [l for l in lines if l not in move]
+    while keep and keep[-1] == '':
+        keep.pop()
+    open(p, 'w').write('\n'.join(keep + move) + '\n')
+MIGRATE
+
+# vMenu goes LAST, after every car and gun resource. add-mod.sh puts new mods
+# just above the ">>> vmenu-last" line. vMenu has to start after them or their
+# cars and guns don't show up in its menus.
+cat >> "$CFG" <<'EOF'
+# >>> vmenu-last (managed by post-install.sh - keep this at the very bottom)
+## vMenu Enhanced - press M to open
+exec @vMenu.Enhanced/config/permissions.cfg
+exec @vMenu.Enhanced/config/configuration.cfg
+add_filesystem_permission vMenu.Enhanced write vMenu.Enhanced
+ensure vMenu.Enhanced
+# <<< vmenu-last
+EOF
+
+# Put the modded guns in vMenu's Weapon Options
+bash "$(dirname "${BASH_SOURCE[0]}")/vmenu-sync.sh" "$SERVER_DIR"
+
 chown -R "${FIVEM_USER}:${FIVEM_USER}" "$SERVER_DIR"
 
 log "Restarting server"
@@ -289,8 +353,8 @@ cat <<EOF
 
 =====================================================================
  Done!
-   vMenu:          $CUSTOM_DIR/vMenu
-   Permissions:    $SERVER_DIR/vmenu_permissions.cfg   <- add yourself as admin here
+   vMenu:          $CUSTOM_DIR/vMenu.Enhanced
+   Permissions:    $VMENU_CFG/permissions.cfg   <- add yourself as admin here
    Custom cars:    $CUSTOM_DIR/custom_vehicles
    Custom guns:    $CUSTOM_DIR/custom_weapons
    server.cfg backup saved next to server.cfg

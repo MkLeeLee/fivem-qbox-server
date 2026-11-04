@@ -145,8 +145,22 @@ show_rpf_types() {
   done < <(find "$1" -type f -iname '*.rpf' -print0 | sort -z)
 }
 
+# New mods go ABOVE the vMenu block, so they start before vMenu (otherwise their
+# cars and guns don't show up in vMenu). Without that block, add at the bottom.
 add_ensure() {
-  grep -qxF "ensure $1" "$CFG" || echo "ensure $1" >> "$CFG"
+  if grep -qxF "ensure $1" "$CFG"; then return; fi
+  if grep -q '^# >>> vmenu-last' "$CFG"; then
+    sed -i "/^# >>> vmenu-last/i ensure $1" "$CFG"
+  else
+    echo "ensure $1" >> "$CFG"
+  fi
+}
+
+# Lists modded guns in vMenu's Weapon Options (cars are found by vMenu itself)
+sync_vmenu() {
+  if [[ -f "$(dirname "$0")/vmenu-sync.sh" ]]; then
+    bash "$(dirname "$0")/vmenu-sync.sh" "$SERVER_DIR" || warn "Couldn't update vMenu's weapon list. Run: sudo bash vmenu-sync.sh"
+  fi
 }
 
 # ----------------------------- actions ---------------------------------------
@@ -273,6 +287,8 @@ do_install() {
 
   log "Installed: ${installed[*]:-$NAME}"
   for res in "${installed[@]:-$NAME}"; do show_models "$RES_ROOT/$res"; done
+  sync_vmenu
+  echo "Admins will find modded cars in vMenu > Vehicle Spawner (under their normal class, like Sports), and modded guns in Weapon Options > Custom Weapons."
   echo "Restart the server to load it:  txAdmin -> Restart  (or: sudo systemctl restart fivem)"
 }
 
@@ -287,6 +303,7 @@ do_remove() {
     echo "Removed $res"
   done < "$INSTALLED_DB/$NAME"
   rm -f "$INSTALLED_DB/$NAME"
+  sync_vmenu
   echo "Restart the server to finish:  sudo systemctl restart fivem"
 }
 
