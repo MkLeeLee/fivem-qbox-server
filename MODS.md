@@ -288,7 +288,7 @@ server already does each job:
 | Link | Why you don't need it |
 |---|---|
 | Open All Interiors | **bob74_ipl** (already installed) loads the online interiors |
-| Add-On Vehicle Spawner | **vMenu** → Vehicle Spawner (admins). Once your cars are in, I can add them to vMenu's "Addon Vehicles" list so admins can pick them from a menu |
+| Add-On Vehicle Spawner | **vMenu** → Vehicle Spawner (admins). Modded cars appear there on their own (under their normal class), and modded guns under Weapon Options → Custom Weapons |
 | Map Editor | Single-player map maker. Maps on FiveM come as ymap files, which `add-mod.sh` handles |
 | Fuel Script V | **ox_fuel** is already installed (gas stations, jerry cans) |
 | CodeWalker | A Windows PC tool for building and converting maps and cars. It runs on your PC, not the server, so skip it since you don't want downloads on your computer |

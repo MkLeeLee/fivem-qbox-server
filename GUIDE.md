@@ -76,7 +76,7 @@ cd ~/fivem-qbox-server
 sudo bash post-install.sh
 ```
 
-This downloads vMenu, writes `vmenu_permissions.cfg`, creates the `custom_vehicles`
+This downloads vMenu Enhanced (the current vMenu), writes its `permissions.cfg` and `configuration.cfg`, creates the `custom_vehicles`
 and `custom_weapons` resources, adds the settings to `server.cfg` and restarts the server.
 
 It also adds **`no_npc_services`**, which removes all NPC police, EMS and fire: no cops in traffic, no
@@ -227,8 +227,14 @@ vMenu was built for freeroam servers. Several of its menus skip Qbox's systems:
 | Vehicle / Player Options | Free repairs, god mode | Admins (or everyone, see below) |
 | Misc Settings | Harmless (speedometer, coordinates, keybinds...) | Everyone |
 
-Want it more chill? Open `vmenu_permissions.cfg` and remove the `#` in front of the
-**"fun mode"** lines to give everyone vehicle and player options and noclip.
+Want it more chill? Open `resources/[custom]/vMenu.Enhanced/config/permissions.cfg` and remove the `#` in front of the
+**"fun mode"** lines to give everyone vehicle and player options.
+
+### Modded cars and guns in vMenu
+
+- **Cars** show up in Vehicle Spawner under their normal class (Sports, Muscle...) with no setup. vMenu only finds them if they start *before* vMenu, so `post-install.sh` and `add-mod.sh` keep vMenu as the very last thing in `server.cfg`. Don't move the `vmenu-last` block.
+- **Guns** go under Weapon Options → **Custom Weapons**. `add-mod.sh` fills that list for you. If you added a gun by hand, run `sudo bash vmenu-sync.sh` and restart.
+- Only admins see them. Everyone else gets modded cars from the dealership and modded guns from the gun store.
 
 ## Everyday commands (over SSH)
 
@@ -259,7 +265,8 @@ txAdmin can also schedule daily restarts: **Settings** → **Restarter**.
 |---|---|
 | Can't open txAdmin page | Your VPS provider's firewall must allow TCP **40120** and TCP+UDP **30120** |
 | Friends can't connect | Same ports. Also check the whitelist in txAdmin |
-| "Couldn't load resource vMenu" | Run `sudo bash post-install.sh` again |
+| "Couldn't load resource vMenu.Enhanced" | Run `sudo bash post-install.sh` again. The folder must be named exactly `vMenu.Enhanced` |
+| A modded car or gun is missing in vMenu | Run `sudo bash vmenu-sync.sh`, restart, and check the mod's `ensure` line is above the `vmenu-last` block in `server.cfg` |
 | An error mentions `custom_vehicles` or `custom_weapons` while they're empty | Put `#` in front of their `ensure` lines in server.cfg until you add something |
 | Database errors during the recipe | Check the password in `/root/fivem-db-credentials.txt` |
 | "Script won't run" after pasting | Run `sed -i 's/\r$//' install.sh` and try again |
